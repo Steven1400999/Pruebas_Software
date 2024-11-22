@@ -118,6 +118,66 @@ class Articulo(Resource):
         db.session.commit()
         return Articulo.query.all(), 200
 
+
+# --- Fields para la serialización ---
+categoria_fields = {
+    "id": fields.Integer,
+    "categoria": fields.String
+}
+
+proveedor_fields = {
+    "id": fields.Integer,
+    "proveedor": fields.String
+}
+
+
+# --- Clases Resource ---
+class Categorias(Resource):
+    @marshal_with(categoria_fields)
+    def get(self):
+        categorias = Categorias.query.all()
+        return categorias, 200
+    
+    @marshal_with(categoria_fields)
+    def post(self):
+        args = categoria_args.parse_args()
+        nueva_categoria = Categorias(categoria=args["categoria"])
+        db.session.add(nueva_categoria)
+        db.session.commit()
+        return nueva_categoria, 201
+
+class Categoria(Resource):
+    @marshal_with(categoria_fields)
+    def get(self, categoria_id):
+        categoria = Categorias.query.filter_by(id=categoria_id).first()
+        if not categoria:
+            abort(404, message="Categoría no encontrada")
+        return categoria, 200
+
+class Proveedores(Resource):
+    @marshal_with(proveedor_fields)
+    def get(self):
+        proveedores = Proveedores.query.all()
+        return proveedores, 200
+    
+    @marshal_with(proveedor_fields)
+    def post(self):
+        args = proveedor_args.parse_args()
+        nuevo_proveedor = Proveedores(proveedor=args["proveedor"])
+        db.session.add(nuevo_proveedor)
+        db.session.commit()
+        return nuevo_proveedor, 201
+
+class Proveedor(Resource):
+    @marshal_with(proveedor_fields)
+    def get(self, proveedor_id):
+        proveedor = Proveedores.query.filter_by(id=proveedor_id).first()
+        if not proveedor:
+            abort(404, message="Proveedor no encontrado")
+        return proveedor, 200
+
+
+
 #api.add_resource(Users, "/api/users/")
 #api.add_resource(User, "/api/users/<int:user_id>")
 
