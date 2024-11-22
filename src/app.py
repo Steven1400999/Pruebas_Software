@@ -1,7 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from api.extensions import db
-#from api.controllers import User, Users
 from api.controllers import Articulo,Articulos, Proveedores,Proveedor,Categorias,Categoria
 from flask_restful import Api, Resource, reqparse, abort, fields, marshal_with, abort
 

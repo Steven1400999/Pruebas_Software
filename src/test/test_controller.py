@@ -1,7 +1,7 @@
 from flask import Flask, json
-from api.controllers import User, Users  
+from api.controllers import Articulos, Articulo, Categorias,Categoria,Proveedores,Proveedor  
 from flask_sqlalchemy import SQLAlchemy  
-from api.models import  db
+from api.models import  db, Articulos,Categorias,Proveedores
 from unittest.mock import MagicMock, patch, Mock
 from flask_restful import Api
 import unittest
@@ -26,9 +26,9 @@ def app():
 def client(app):
     return app.test_client()
 
-#def test_user_get_not_found(client):
-#    response = client.get('/users/999')
-#    assert response.status_code == 404
+def test_user_get_not_found(client):
+    response = client.get('/users/999')
+    assert response.status_code == 404
 #
 #def test_verify_email(client):
 #    mock_users_repository = MagicMock()
