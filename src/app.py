@@ -1,7 +1,8 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from api.extensions import db
-from api.controllers import User, Users
+#from api.controllers import User, Users
+from api.controllers import Articulo,Articulos, Proveedores,Proveedor,Categorias,Categoria
 from flask_restful import Api, Resource, reqparse, abort, fields, marshal_with, abort
 
 app = Flask(__name__)
@@ -14,70 +15,121 @@ api = Api(app)
 with app.app_context():
     db.create_all()
 
-# class UserModel(db.Model):
-#    id = db.Column(db.Integer, primary_key=True)
-#    username = db.Column(db.String(80), unique=True, nullable=False)
-#    email = db.Column(db.String(120), unique=True, nullable=False)
-
-#    def __repr__(self):
-#        return f"User (username = {self.username}, email: {self.email})>"
+class Articulos(db.Model):
+    id = db.Column(db.Integer, primary_key=True, unique=True, nullable=False)
+    nombre = db.Column(db.String(80), nullable=False)
+    descripcion = db.Column(db.String(200))
+    categoria_id = db.Column(db.Integer, db.ForeignKey('categoria.id'), nullable=False)
+    proveedor_id = db.Column(db.Integer, db.ForeignKey('proveedor.id'), nullable=False)
+    stock = db.Column(db.Integer, nullable=False)
+    precio = db.Column(db.Float, nullable=False)
     
-#user_args = reqparse.RequestParser()
-#user_args.add_argument("username", type=str, required=True, help="Username is required")
-#user_args.add_argument("email", type=str, required=True, help="Email is required")
+    def __repr__(self):
+        return f"<Articulo (nombre={self.nombre}, precio={self.precio})>"
 
-# userFields = {
-#    "id": fields.Integer,
-#    "username": fields.String,
-#    "email": fields.String
-# }
-
-#class Users(Resource):
-#    @marshal_with(userFields)
-#    def post(self):
-#        args = user_args.parse_args()
-#        user = UserModel(username=args["username"], email=args["email"])
-#        db.session.add(user)
-#        db.session.commit()
-#        users = UserModel.query.all()
-#        return users, 201
-#    
-#    @marshal_with(userFields)
-#    def get(self):
-#        users = UserModel.query.all()
-#        return users
+class Categorias(db.Model):
+    id = db.Column(db.Integer, primary_key=True, unique=True, nullable=False)
+    categoria = db.Column(db.String(80), unique=True, nullable=False)
     
-#class User(Resource):
-#    @marshal_with(userFields)
-#    def get(self, user_id):
-#        user = UserModel.query.filter_by(id=user_id).first()
-#        if not user:
-#            abort(404, message="User not found")
-#        return user, 200
-#    
-#    @marshal_with(userFields)
-#    def patch(self, user_id):
-#        args = user_args.parse_args()
-#        user = UserModel.query.filter_by(id=user_id).first()
-#        if not user:
-#            abort(404, message="User not found")
-#        user.name = args["username"]
-#        user.email = args["email"]
-#        db.session.commit()
-#        return user, 200
-    
-#    @marshal_with(userFields)
-#    def delete(self, user_id):
-#        user = UserModel.query.filter_by(id=user_id).first()
-#        if not user:
-#            abort(404, message="User not found")
-#        db.session.delete(user)
-#        db.session.commit()
-#        users = UserModel.query.all()
-#        return users
+    def __repr__(self):
+        return f"<Categoria (nombre={self.categoria})>"
 
-api.add_resource(Users, "/api/users/")
-api.add_resource(User, "/api/users/<int:user_id>")
+class Proveedores(db.Model):
+    id = db.Column(db.Integer, primary_key=True, unique=True, nullable=False)
+    proveedor = db.Column(db.String(80), unique=True, nullable=False)
+    
+    def __repr__(self):
+        return f"<Proveedor (nombre={self.proveedor})>"
+
+# --- Parsers ---
+articulo_args = reqparse.RequestParser()
+articulo_args.add_argument("nombre", type=str, required=True, help="El nombre es obligatorio")
+articulo_args.add_argument("descripcion", type=str)
+articulo_args.add_argument("categoria_id", type=int, required=True, help="La categoría es obligatoria")
+articulo_args.add_argument("proveedor_id", type=int, required=True, help="El proveedor es obligatorio")
+articulo_args.add_argument("stock", type=int, required=True, help="El stock es obligatorio")
+articulo_args.add_argument("precio", type=float, required=True, help="El precio es obligatorio")
+
+# --- Fields para la serialización ---
+articulo_fields = {
+    "id": fields.Integer,
+    "nombre": fields.String,
+    "descripcion": fields.String,
+    "categoria_id": fields.Integer,
+    "proveedor_id": fields.Integer,
+    "stock": fields.Integer,
+    "precio": fields.Float
+}
+
+# --- Clases Resource ---
+class Articulos(Resource):
+    @marshal_with(articulo_fields)
+    def post(self):
+        args = articulo_args.parse_args()
+        nuevo_articulo = Articulo(
+            nombre=args["nombre"],
+            descripcion=args["descripcion"],
+            categoria_id=args["categoria_id"],
+            proveedor_id=args["proveedor_id"],
+            stock=args["stock"],
+            precio=args["precio"]
+        )
+        db.session.add(nuevo_articulo)
+        db.session.commit()
+        return Articulo.query.all(), 201
+    
+    @marshal_with(articulo_fields)
+    def get(self):
+        articulos = Articulo.query.all()
+        return articulos
+
+class Articulo(Resource):
+    @marshal_with(articulo_fields)
+    def get(self, articulo_id):
+        articulo = Articulo.query.filter_by(id=articulo_id).first()
+        if not articulo:
+            abort(404, message="Artículo no encontrado")
+        return articulo, 200
+    
+    @marshal_with(articulo_fields)
+    def patch(self, articulo_id):
+        args = articulo_args.parse_args()
+        articulo = Articulo.query.filter_by(id=articulo_id).first()
+        if not articulo:
+            abort(404, message="Artículo no encontrado")
+        
+        articulo.nombre = args["nombre"]
+        articulo.descripcion = args["descripcion"]
+        articulo.categoria_id = args["categoria_id"]
+        articulo.proveedor_id = args["proveedor_id"]
+        articulo.stock = args["stock"]
+        articulo.precio = args["precio"]
+        
+        db.session.commit()
+        return articulo, 200
+    
+    @marshal_with(articulo_fields)
+    def delete(self, articulo_id):
+        articulo = Articulo.query.filter_by(id=articulo_id).first()
+        if not articulo:
+            abort(404, message="Artículo no encontrado")
+        
+        db.session.delete(articulo)
+        db.session.commit()
+        return Articulo.query.all(), 200
+
+#api.add_resource(Users, "/api/users/")
+#api.add_resource(User, "/api/users/<int:user_id>")
+
+api.add_resource(Articulos, "/api/articulos/")
+api.add_resource(Articulo, "/api/articulos/<int:articulo_id>")
+
+api.add_resource(Categorias, "/api/categorias/")
+api.add_resource(Categoria, "/api/categorias/<int:categoria_id>")
+
+api.add_resource(Proveedores, "/api/proveedores/")  
+api.add_resource(Proveedor, "/api/proveedores/<int:proveedor_id>")
+
 
 
 @app.route('/')
