@@ -1,6 +1,6 @@
 from flask import Response, json
 from flask_restful import Resource, reqparse, abort, fields, marshal_with
-from api.models import db, Articulos, Categorias, Proveedores
+from api.models import db, Articulo, Categoria, Proveedor  # Corregido para usar los nombres de los modelos correctos
 import re
 
 # --- Parsers para Artículos ---
@@ -24,11 +24,11 @@ articulo_fields = {
 }
 
 # --- Controlador para Artículos ---
-class Articulos(Resource):
+class ArticulosResource(Resource):
     @marshal_with(articulo_fields)
     def post(self):
         args = articulo_args.parse_args()
-        nuevo_articulo = Articulo(
+        nuevo_articulo = Articulo(  # Corregido para usar Articulo en lugar de Articulos
             nombre=args["nombre"],
             descripcion=args["descripcion"],
             categoria_id=args["categoria_id"],
@@ -38,17 +38,17 @@ class Articulos(Resource):
         )
         db.session.add(nuevo_articulo)
         db.session.commit()
-        return Articulo.query.all(), 201
+        return nuevo_articulo, 201
     
     @marshal_with(articulo_fields)
     def get(self):
-        articulos = Articulo.query.all()
+        articulos = Articulo.query.all()  # Corregido para usar Articulo
         return articulos
 
-class Articulo(Resource):
+class ArticuloResource(Resource):
     @marshal_with(articulo_fields)
     def get(self, articulo_id):
-        articulo = Articulo.query.filter_by(id=articulo_id).first()
+        articulo = Articulo.query.filter_by(id=articulo_id).first()  # Corregido para usar Articulo
         if not articulo:
             abort(404, message="Artículo no encontrado")
         return articulo, 200
@@ -56,7 +56,7 @@ class Articulo(Resource):
     @marshal_with(articulo_fields)
     def patch(self, articulo_id):
         args = articulo_args.parse_args()
-        articulo = Articulo.query.filter_by(id=articulo_id).first()
+        articulo = Articulo.query.filter_by(id=articulo_id).first()  # Corregido para usar Articulo
         if not articulo:
             abort(404, message="Artículo no encontrado")
         articulo.nombre = args["nombre"]
@@ -70,12 +70,12 @@ class Articulo(Resource):
     
     @marshal_with(articulo_fields)
     def delete(self, articulo_id):
-        articulo = Articulo.query.filter_by(id=articulo_id).first()
+        articulo = Articulo.query.filter_by(id=articulo_id).first()  # Corregido para usar Articulo
         if not articulo:
             abort(404, message="Artículo no encontrado")
         db.session.delete(articulo)
         db.session.commit()
-        return Articulo.query.all(), 200
+        return {"message": "Artículo eliminado"}, 200
 
 # --- Parsers para Categorías ---
 categoria_args = reqparse.RequestParser()
@@ -88,24 +88,24 @@ categoria_fields = {
 }
 
 # --- Controlador para Categorías ---
-class Categorias(Resource):
+class CategoriasResource(Resource):
     @marshal_with(categoria_fields)
     def post(self):
         args = categoria_args.parse_args()
-        nueva_categoria = Categoria(categoria=args["categoria"])
+        nueva_categoria = Categoria(categoria=args["categoria"])  # Corregido para usar Categoria
         db.session.add(nueva_categoria)
         db.session.commit()
-        return Categoria.query.all(), 201
+        return nueva_categoria, 201
     
     @marshal_with(categoria_fields)
     def get(self):
-        categorias = Categoria.query.all()
+        categorias = Categoria.query.all()  # Corregido para usar Categoria
         return categorias
 
-class Categoria(Resource):
+class CategoriaResource(Resource):
     @marshal_with(categoria_fields)
     def get(self, categoria_id):
-        categoria = Categoria.query.filter_by(id=categoria_id).first()
+        categoria = Categoria.query.filter_by(id=categoria_id).first()  # Corregido para usar Categoria
         if not categoria:
             abort(404, message="Categoría no encontrada")
         return categoria, 200
@@ -113,7 +113,7 @@ class Categoria(Resource):
     @marshal_with(categoria_fields)
     def patch(self, categoria_id):
         args = categoria_args.parse_args()
-        categoria = Categoria.query.filter_by(id=categoria_id).first()
+        categoria = Categoria.query.filter_by(id=categoria_id).first()  # Corregido para usar Categoria
         if not categoria:
             abort(404, message="Categoría no encontrada")
         categoria.categoria = args["categoria"]
@@ -122,12 +122,12 @@ class Categoria(Resource):
     
     @marshal_with(categoria_fields)
     def delete(self, categoria_id):
-        categoria = Categoria.query.filter_by(id=categoria_id).first()
+        categoria = Categoria.query.filter_by(id=categoria_id).first()  # Corregido para usar Categoria
         if not categoria:
             abort(404, message="Categoría no encontrada")
         db.session.delete(categoria)
         db.session.commit()
-        return Categoria.query.all(), 200
+        return {"message": "Categoría eliminada"}, 200
 
 # --- Parsers para Proveedores ---
 proveedor_args = reqparse.RequestParser()
@@ -140,24 +140,24 @@ proveedor_fields = {
 }
 
 # --- Controlador para Proveedores ---
-class Proveedores(Resource):
+class ProveedoresResource(Resource):
     @marshal_with(proveedor_fields)
     def post(self):
         args = proveedor_args.parse_args()
-        nuevo_proveedor = Proveedor(proveedor=args["proveedor"])
+        nuevo_proveedor = Proveedor(proveedor=args["proveedor"])  # Corregido para usar Proveedor
         db.session.add(nuevo_proveedor)
         db.session.commit()
-        return Proveedor.query.all(), 201
+        return nuevo_proveedor, 201
     
     @marshal_with(proveedor_fields)
     def get(self):
-        proveedores = Proveedor.query.all()
+        proveedores = Proveedor.query.all()  # Corregido para usar Proveedor
         return proveedores
 
-class Proveedor(Resource):
+class ProveedorResource(Resource):
     @marshal_with(proveedor_fields)
     def get(self, proveedor_id):
-        proveedor = Proveedor.query.filter_by(id=proveedor_id).first()
+        proveedor = Proveedor.query.filter_by(id=proveedor_id).first()  # Corregido para usar Proveedor
         if not proveedor:
             abort(404, message="Proveedor no encontrado")
         return proveedor, 200
@@ -165,7 +165,7 @@ class Proveedor(Resource):
     @marshal_with(proveedor_fields)
     def patch(self, proveedor_id):
         args = proveedor_args.parse_args()
-        proveedor = Proveedor.query.filter_by(id=proveedor_id).first()
+        proveedor = Proveedor.query.filter_by(id=proveedor_id).first()  # Corregido para usar Proveedor
         if not proveedor:
             abort(404, message="Proveedor no encontrado")
         proveedor.proveedor = args["proveedor"]
@@ -174,9 +174,9 @@ class Proveedor(Resource):
     
     @marshal_with(proveedor_fields)
     def delete(self, proveedor_id):
-        proveedor = Proveedor.query.filter_by(id=proveedor_id).first()
+        proveedor = Proveedor.query.filter_by(id=proveedor_id).first()  # Corregido para usar Proveedor
         if not proveedor:
             abort(404, message="Proveedor no encontrado")
         db.session.delete(proveedor)
         db.session.commit()
-        return Proveedor.query.all(), 200
+        return {"message": "Proveedor eliminado"}, 200
