@@ -116,32 +116,27 @@ test('TC_UI_005', async ({ page }) => {
 
   await expect(page.locator("div[class='oxwidget_headerlogin_title1 large']")).toContainText("Mi cuenta");
 
-  const SelectCategory = page.locator("a[href='/Computo-Hardware/'][class='has-sub-categories'] ");
-  await expect(SelectCategory).toBeVisible();
-  await SelectCategory.click();
+  const InputArticle = page.locator("input[name='searchparam'][placeholder='¿Qué producto buscas el día de hoy?']");
+  await expect(InputArticle).toBeVisible();
+  await InputArticle.fill(" ASUS Laptop Gamer ASUS TUF Gaming F15 FX507VV");
+  await page.keyboard.press('Enter');
 
 
-  const SelectSubCategory = page.locator("a[href='/Computo-Hardware/Componentes/'][title='Componentes']");
-  await expect(SelectSubCategory).toBeVisible();
-  await SelectSubCategory.click();
-
-  const SelectArticles = page.locator("a[href='https://www.cyberpuerta.mx/Computo-Hardware/Componentes/Tarjetas-Madre/'][class='subcat-content']");
-  await expect(SelectArticles).toBeVisible();
-  await SelectArticles.click();
-
-  await expect(page.locator("h1")).toContainText("Tarjetas Madre");
-
-
-  const WatchArticle = page.locator("a[id='productList-2']");
+  const WatchArticle = page.locator("a[id='searchList-1'][href='https://www.cyberpuerta.mx/Computadoras/Laptops/Laptop-Gamer-ASUS-TUF-Gaming-F15-FX507VV-15-6-1920x1080-Full-HD-Intel-Core-i7-13620H-NVIDIA-GeForce-RTX-4060-16GB-1TB-SSD-Windows-11-Home-Espanol.html']");
   await expect(WatchArticle).toBeVisible();
   await WatchArticle.click();
 
-  //await expect(page.locator("h1[class='detailsInfo_right_title']"));
+  await expect(page.locator("a[title='FX507VV-LP313W']")).toContainText("FX507VV-LP313W");
 
   await page.waitForTimeout(1000);
-  const AddToCart = page.locator("button[data-pre-process-add-to-cart='68a14620d115f9e386bc423259fd49c3']");
+  const AddToCart = page.locator("button[data-pre-process-add-to-cart='2121a373323021e2d130c4ab1b2e53d0']");
   await expect(AddToCart).toBeVisible();
   await AddToCart.click();
+
+
+  const ClearWindow = page.locator("i[class='cpx-icon cpx-icon--primary c-popup-2__close-btn']");
+  await expect(ClearWindow).toBeVisible();
+  await ClearWindow.click();
 
 
   const WatchcCart = page.locator("a[class='oxwidget_headerminibasket_header'][href='https://www.cyberpuerta.mx/carrito-de-compras/']");
@@ -149,12 +144,12 @@ test('TC_UI_005', async ({ page }) => {
   await WatchcCart.click();
 
 
-  //await expect(page.locator("div.emtitle a[href='https://www.cyberpuerta.mx/Computo-Hardware/Componentes/Tarjetas-Madre/Tarjeta-Madre-Gigabyte-Micro-ATX-A520M-K-V2-S-AM4-AMD-A520-HDMI-64GB-DDR4-para-AMD.html']")).toContainText("Tarjeta Madre Gigabyte Micro-ATX A520M K V2, S-AM4, AMD A520, HDMI, 64GB DDR4 para AMD");
+  await expect(page.locator("div.emtitle a[href='https://www.cyberpuerta.mx/Computadoras/Laptops/Laptop-Gamer-ASUS-TUF-Gaming-F15-FX507VV-15-6-1920x1080-Full-HD-Intel-Core-i7-13620H-NVIDIA-GeForce-RTX-4060-16GB-1TB-SSD-Windows-11-Home-Espanol.html']")).toBeVisible();
 
   await expect(page.locator("div[class='basketboxcount']")).toContainText("Tienes 1 producto(s) en tu carrito");
 
 
-  //await page.pause();
+ // await page.pause();
 
 
 });
