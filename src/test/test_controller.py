@@ -26,9 +26,111 @@ def app():
 def client(app):
     return app.test_client()
 
-def test_user_get_not_found(client):
-    response = client.get('/users/999')
+
+def test_create_proveedor(client):
+    response = client.post('/proveedores', json={'proveedor': 'Tech Supplier'})
+    assert response.status_code == 201
+    assert response.get_json()[0]['proveedor'] == 'Tech Supplier'
+
+def test_get_proveedores(client):
+    response = client.get('/proveedores')
+    assert response.status_code == 200
+    assert isinstance(response.get_json(), list)
+
+def test_delete_proveedor(client):
+    # Crear y luego eliminar un proveedor
+    response = client.post('/proveedores', json={'proveedor': 'Best Supplies'})
+    proveedor_id = response.get_json()[0]['id']
+
+    delete_response = client.delete(f'/proveedores/{proveedor_id}')
+    assert delete_response.status_code == 200
+    assert response.get_json() == []  # Verifica que no hay proveedores después de eliminarlo
+
+
+
+
+
+
+
+
+def test_create_categoria(client):
+    response = client.post('/categorias', json={'categoria': 'Electrónica'})
+    assert response.status_code == 201
+    assert response.get_json()[0]['categoria'] == 'Electrónica'
+
+def test_get_categorias(client):
+    response = client.get('/categorias')
+    assert response.status_code == 200
+    assert isinstance(response.get_json(), list)
+
+def test_get_categoria_no_existente(client):
+    response = client.get('/categorias/999')
     assert response.status_code == 404
+    assert response.get_json()['message'] == 'Categoría no encontrada'
+
+
+
+
+
+
+
+
+
+def test_create_articulo(client):
+    # Crear un nuevo artículo
+    response = client.post('/articulos', json={
+        'nombre': 'Laptop ASUS',
+        'descripcion': 'Laptop gaming',
+        'categoria_id': 1,
+        'proveedor_id': 1,
+        'stock': 10,
+        'precio': 1500.00
+    })
+    assert response.status_code == 201
+    data = response.get_json()
+    assert data[0]['nombre'] == 'Laptop ASUS'
+
+def test_get_articulos(client):
+    # Obtener la lista de artículos
+    response = client.get('/articulos')
+    assert response.status_code == 200
+    assert isinstance(response.get_json(), list)
+
+def test_get_articulo_no_existente(client):
+    # Intentar obtener un artículo inexistente
+    response = client.get('/articulos/999')  # ID inexistente
+    assert response.status_code == 404
+    assert response.get_json()['message'] == 'Artículo no encontrado'
+
+def test_delete_articulo(client):
+    # Crear y luego eliminar un artículo
+    response = client.post('/articulos', json={
+        'nombre': 'Monitor Dell',
+        'descripcion': 'Monitor 27 pulgadas',
+        'categoria_id': 1,
+        'proveedor_id': 1,
+        'stock': 5,
+        'precio': 300.00
+    })
+    articulo_id = response.get_json()[0]['id']
+
+    delete_response = client.delete(f'/articulos/{articulo_id}')
+    assert delete_response.status_code == 200
+    assert delete_response.get_json() == []  # Verifica que la lista de artículos esté vacía
+
+
+
+
+
+
+
+
+
+
+
+#def test_user_get_not_found(client):
+#    response = client.get('/users/999')
+#    assert response.status_code == 404
 #
 #def test_verify_email(client):
 #    mock_users_repository = MagicMock()

@@ -7,7 +7,7 @@ from flask_restful import Api, Resource, reqparse, abort, fields, marshal_with, 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 db.init_app(app)
-# db = SQLAlchemy(app)
+#db = SQLAlchemy(app)
 api = Api(app)
 
 
@@ -180,14 +180,19 @@ class Proveedor(Resource):
 #api.add_resource(Users, "/api/users/")
 #api.add_resource(User, "/api/users/<int:user_id>")
 
-api.add_resource(Articulos, "/api/articulos/")
-api.add_resource(Articulo, "/api/articulos/<int:articulo_id>")
+api = Api(app)
 
-api.add_resource(Categorias, "/api/categorias/")
-api.add_resource(Categoria, "/api/categorias/<int:categoria_id>")
+# Rutas para Artículos
+api.add_resource(Articulos, '/articulos')
+api.add_resource(Articulo, '/articulos/<int:articulo_id>')
 
-api.add_resource(Proveedores, "/api/proveedores/")  
-api.add_resource(Proveedor, "/api/proveedores/<int:proveedor_id>")
+# Rutas para Categorías
+api.add_resource(Categorias, '/categorias')
+api.add_resource(Categoria, '/categorias/<int:categoria_id>')
+
+# Rutas para Proveedores
+api.add_resource(Proveedores, '/proveedores')
+api.add_resource(Proveedor, '/proveedores/<int:proveedor_id>')
 
 
 
