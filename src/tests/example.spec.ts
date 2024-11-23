@@ -155,10 +155,79 @@ test('TC_UI_005', async ({ page }) => {
 });
 
 
+//Verificar si se busca un articulo que no exista
+test('TC_UI_006', async ({ page }) => {
+
+  await page.goto('https://www.cyberpuerta.mx/');
+  await expect(page).toHaveTitle(/Cyberpuerta.mx: Hardware, Computadoras, Laptops & Más/);
+
+  const InputArticle = page.locator("input[name='searchparam'][placeholder='¿Qué producto buscas el día de hoy?']");
+  await expect(InputArticle).toBeVisible();
+  await InputArticle.fill("Trek Madone");
+  await page.keyboard.press('Enter');
 
 
+  const ArticleNotFound = page.locator("div[class='cp-no-results']");
+  await expect(ArticleNotFound).toContainText("No se encontraron resultados para “Trek Madone”");
+  
+
+});
 
 
+//Agregar un prodcuto a carrito y seguir el proceso de compra sin haber iniciado sesion para que pida iniciar sesion
+test('TC_UI_007', async ({ page }) => {
+
+  await page.goto('https://www.cyberpuerta.mx/');
+  await expect(page).toHaveTitle(/Cyberpuerta.mx: Hardware, Computadoras, Laptops & Más/);
+
+
+  const InputArticle = page.locator("input[name='searchparam'][placeholder='¿Qué producto buscas el día de hoy?']");
+  await expect(InputArticle).toBeVisible();
+  await InputArticle.fill(" Mouse Gamer Ergonómico Logitech Óptico G502 Hero");
+  await page.keyboard.press('Enter');
+
+
+  const WatchArticle = page.locator("a[id='searchList-1'][href='https://www.cyberpuerta.mx/Computo-Hardware/Dispositivos-de-Entrada/Mouse/Mouse-Gamer-Ergonomico-Logitech-Optico-G502-Hero-RGB-Alambrico-USB-16-000DPI-Negro.html']");
+  await expect(WatchArticle).toBeVisible();
+  await WatchArticle.click();
+
+
+  await page.waitForTimeout(1000);
+  const AddToCart = page.locator("button[data-pre-process-add-to-cart='ca69042021d7c8e3c2c4aea9f6d025fc']");
+  await expect(AddToCart).toBeVisible();
+  await AddToCart.click();
+
+
+  const ClearWindow = page.locator("i[class='cpx-icon cpx-icon--primary c-popup-2__close-btn']");
+  await expect(ClearWindow).toBeVisible();
+  await ClearWindow.click();
+
+
+  const WatchcCart = page.locator("a[class='oxwidget_headerminibasket_header'][href='https://www.cyberpuerta.mx/carrito-de-compras/']");
+  await expect(WatchcCart).toBeVisible();
+  await WatchcCart.click();
+
+
+  await expect(page.locator("div.emtitle a[href='https://www.cyberpuerta.mx/Computo-Hardware/Dispositivos-de-Entrada/Mouse/Mouse-Gamer-Ergonomico-Logitech-Optico-G502-Hero-RGB-Alambrico-USB-16-000DPI-Negro.html']")).toBeVisible();
+
+
+  const NextStep = page.locator("button[type='submit'][class='submitButton largeButton nextStep']");
+  await expect(NextStep).toBeVisible();
+  await NextStep.click();
+
+
+  const LogIn1 = page.locator("h3 >> text=Ingresa a tu cuenta");
+  await expect(LogIn1).toBeVisible();
+
+  const LogIn2 = page.locator("h3 >> text=¿No tienes cuenta aún? ¡Regístrate!");
+  await expect(LogIn2).toBeVisible();
+
+ // await page.pause();
+
+
+  
+
+});
 
 
 
