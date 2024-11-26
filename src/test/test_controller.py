@@ -12,7 +12,7 @@ from api.controllers import ArticuloResource, ArticulosResource, CategoriaResour
 @pytest.fixture
 def app():
     app = Flask(__name__)
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['TESTING'] = True
 
@@ -38,38 +38,56 @@ def app():
 def client(app):
     return app.test_client()
 
+
 # Pruebas para proveedores
 def test_create_proveedor(client):
     response = client.post('/api/proveedores', json={'proveedor': 'Tech Supplier'})
+    print(f"Status Code: {response.status_code}")
+    print(f"Response JSON: {response.get_json()}")
     assert response.status_code == 201
     assert response.get_json()['proveedor'] == 'Tech Supplier'
 
 def test_get_proveedores(client):
+    response = client.post('/api/proveedores', json={'proveedor': 'Tech Supplier'})
+    response = client.post('/api/proveedores', json={'proveedor': 'Global Electronics'})
+    response = client.post('/api/proveedores', json={'proveedor': 'Best Supplies'})
     response = client.get('/api/proveedores')
+    print(f"Status Code: {response.status_code}")
+    print(f"Response JSON: {response.get_json()}")
     assert response.status_code == 200
     assert isinstance(response.get_json(), list)
 
 def test_delete_proveedor(client):
     response = client.post('/api/proveedores', json={'proveedor': 'Best Supplies'})
     proveedor_id = response.get_json()['id']
+    print(f"Proveedor creado con ID: {proveedor_id}")
 
     delete_response = client.delete(f'/api/proveedores/{proveedor_id}')
+    print(f"Status Code: {delete_response.status_code}")
+    print(f"Delete Response: {delete_response.get_json()}")
     assert delete_response.status_code == 200
     assert client.get('/api/proveedores').get_json() == []  # Confirma que la lista está vacía
 
 # Pruebas para categorías
 def test_create_categoria(client):
     response = client.post('/api/categorias', json={'categoria': 'Electrónica'})
+    print(f"Response JSON: {response.get_json()}")
     assert response.status_code == 201
     assert response.get_json()['categoria'] == 'Electrónica'
 
 def test_get_categorias(client):
+    response = client.post('/api/categorias', json={'categoria': 'Electrónica'})
+    response = client.post('/api/categorias', json={'categoria': 'Hogar'})
+    response = client.post('/api/categorias', json={'categoria': 'Ropa'})
     response = client.get('/api/categorias')
+    print(f"Response JSON: {response.get_json()}")
     assert response.status_code == 200
     assert isinstance(response.get_json(), list)
 
 def test_get_categoria_no_existente(client):
     response = client.get('/api/categorias/999')
+    print(f"Status Code: {response.status_code}")
+    print(f"Response JSON: {response.get_json()}")
     assert response.status_code == 404
     assert response.get_json()['message'] == 'Categoría no encontrada'
 
@@ -88,17 +106,32 @@ def test_create_articulo(client):
         'stock': 10,
         'precio': 1500.00
     })
+    print(f"Response JSON: {response.get_json()}")
     assert response.status_code == 201
     data = response.get_json()
     assert data['nombre'] == 'Laptop ASUS'
 
 def test_get_articulos(client):
+    client.post('/api/proveedores', json={'proveedor': 'Tech Supplier'})
+    client.post('/api/categorias', json={'categoria': 'Electrónica'})
+    
+    response = client.post('/api/articulos', json={
+        'nombre': 'Laptop ASUS',
+        'descripcion': 'Laptop gaming',
+        'categoria_id': 1,
+        'proveedor_id': 1,
+        'stock': 10,
+        'precio': 1500.00
+    })
     response = client.get('/api/articulos')
+    print(f"Response JSON: {response.get_json()}")
     assert response.status_code == 200
     assert isinstance(response.get_json(), list)
 
 def test_get_articulo_no_existente(client):
     response = client.get('/api/articulos/999')
+    print(f"Status Code: {response.status_code}")
+    print(f"Response JSON: {response.get_json()}")
     assert response.status_code == 404
     assert response.get_json()['message'] == 'Artículo no encontrado'
 
@@ -115,8 +148,10 @@ def test_delete_articulo(client):
         'precio': 300.00
     })
     articulo_id = response.get_json()['id']
+    print(f"Artículo creado con ID: {articulo_id}")
 
     # Luego eliminar el artículo
     delete_response = client.delete(f'/api/articulos/{articulo_id}')
+    print(f"Delete Response: {delete_response.get_json()}")
     assert delete_response.status_code == 200
     assert client.get('/api/articulos').get_json() == []  # Confirma que la lista está vacía
